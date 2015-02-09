@@ -3,6 +3,7 @@ package me.morrango.arenafutbol.arenas;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -21,6 +22,7 @@ import me.morrango.arenafutbol.FutbolPlugin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.Effect;
 import org.bukkit.FireworkEffect;
@@ -62,13 +64,13 @@ import org.bukkit.util.Vector;
  */
 public class FutbolArena extends Arena {
 
-    private FutbolPlugin plugin;
-    public HashMap<Entity, Player> kickedBy = new HashMap<Entity, Player>();
-    public HashMap<Entity, Match> kickedBalls = new HashMap<Entity, Match>();
-    public HashMap<Match, Entity> cleanUpList = new HashMap<Match, Entity>();
-    private HashMap<ArenaTeam, Integer> ballTimers = new HashMap<ArenaTeam, Integer>();
-    public Set<ArenaTeam> canKick = new HashSet<ArenaTeam>();
-    private Random random = new Random();
+    private final FutbolPlugin plugin;
+    private final Map<Entity, Player> kickedBy = new HashMap<Entity, Player>();
+    private final Map<Entity, Match> kickedBalls = new HashMap<Entity, Match>();
+    private final Map<Match, Entity> cleanUpList = new HashMap<Match, Entity>();
+    private final Map<ArenaTeam, Integer> ballTimers = new HashMap<ArenaTeam, Integer>();
+    private final Set<ArenaTeam> canKick = new HashSet<ArenaTeam>();
+    private final Random random = new Random();
 
     public FutbolArena() {
         this.plugin = (FutbolPlugin) Bukkit.getPluginManager().getPlugin("ArenaFutbol");
@@ -80,8 +82,8 @@ public class FutbolArena extends Arena {
 
     @Override
     public void onOpen() {
-        Set<ArenaPlayer> set = this.match.getPlayers();
-        List<ArenaTeam> teamsList = this.match.getArena().getTeams();
+        Set<ArenaPlayer> set = getMatch().getPlayers();
+        List<ArenaTeam> teamsList = getTeams();
         String teamOne = ((ArenaTeam) teamsList.get(0)).getDisplayName();
         String teamTwo = ((ArenaTeam) teamsList.get(1)).getDisplayName();
         /*
@@ -117,40 +119,7 @@ public class FutbolArena extends Arena {
             this.canKick.add(t);
         }
     }
-
-    public void createFireWork(Location loc, Color teamColor, int i) {
-        if ((loc != null) && (teamColor != null)) {
-            World w = loc.getWorld();
-            for (int j = 0; j <= i; j++) {
-                Entity firework = w.spawnEntity(
-                        new Location(w, loc.getX() + this.random.nextGaussian() * 3.0D, loc.getY(), loc.getZ() + this.random.nextGaussian() * 3.0D),
-                        EntityType.FIREWORK);
-                Firework fw = (Firework) firework;
-                FireworkMeta meta = fw.getFireworkMeta();
-                FireworkEffect.Builder builder = FireworkEffect.builder();
-
-                builder.withColor(teamColor);
-                switch (this.random.nextInt(3)) {
-                    case 0:
-                        builder.with(FireworkEffect.Type.BALL);
-                        break;
-                    case 1:
-                        builder.with(FireworkEffect.Type.BURST);
-                        break;
-                    case 2:
-                        builder.with(FireworkEffect.Type.BALL_LARGE);
-                        break;
-                    default:
-                        builder.with(FireworkEffect.Type.CREEPER);
-                }
-                builder.trail(false);
-                meta.addEffect(builder.build());
-                meta.setPower(0);
-                fw.setFireworkMeta(meta);
-            }
-        }
-    }
-
+    
     @Override
     public void onVictory(MatchResult result) {
         onCancel();
@@ -326,6 +295,39 @@ public class FutbolArena extends Arena {
             tpArenaTeams(setOne, setTwo, thisMatch);
         }
     }
+    
+    public void createFireWork(Location loc, Color teamColor, int i) {
+        if ((loc != null) && (teamColor != null)) {
+            World w = loc.getWorld();
+            for (int j = 0; j <= i; j++) {
+                Entity firework = w.spawnEntity(
+                        new Location(w, loc.getX() + this.random.nextGaussian() * 3.0D, loc.getY(), loc.getZ() + this.random.nextGaussian() * 3.0D),
+                        EntityType.FIREWORK);
+                Firework fw = (Firework) firework;
+                FireworkMeta meta = fw.getFireworkMeta();
+                FireworkEffect.Builder builder = FireworkEffect.builder();
+
+                builder.withColor(teamColor);
+                switch (this.random.nextInt(3)) {
+                    case 0:
+                        builder.with(FireworkEffect.Type.BALL);
+                        break;
+                    case 1:
+                        builder.with(FireworkEffect.Type.BURST);
+                        break;
+                    case 2:
+                        builder.with(FireworkEffect.Type.BALL_LARGE);
+                        break;
+                    default:
+                        builder.with(FireworkEffect.Type.CREEPER);
+                }
+                builder.trail(false);
+                meta.addEffect(builder.build());
+                meta.setPower(0);
+                fw.setFireworkMeta(meta);
+            }
+        }
+    }
 
     public ArenaPlayer getAP(Player player) {
         return BattleArena.toArenaPlayer(player);
@@ -336,6 +338,10 @@ public class FutbolArena extends Arena {
                 origin.getX(),
                 origin.getY() + 1.0,
                 origin.getZ());
+        Chunk chunk = center.getChunk();
+        if (!chunk.isLoaded()) {
+            center.getWorld().loadChunk(chunk);
+        }
         return center;
     }
 
