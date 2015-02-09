@@ -1,3 +1,4 @@
+# particleEffect: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Effect.html
 ball:
   ==: org.bukkit.inventory.ItemStack
   type: MAGMA_CREAM
@@ -6,3 +7,4 @@ pitch: 15
 maxpitch: 90
 power: 1.1
 particles: false
+particleEffect: INSTANT_SPELL
