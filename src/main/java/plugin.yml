@@ -1,10 +1,11 @@
 name: ArenaFutbol
-main: me.morrango.arenafutbol.ArenaFutbol
-version: 0.5.3.2
+main: me.morrango.arenafutbol.FutbolPlugin
+version: 0.5.3.3
 website: https://github.com/BattlePluginsDev/Futbol
 author: Morrango
 authors: [Europia79]
-depend: [BattleArena,ProtocolLib]
+depend: [BattleArena]
+softdepend: [ProtocolLib]
 description: Version 3 of futbol
 commands:
   futbol:
