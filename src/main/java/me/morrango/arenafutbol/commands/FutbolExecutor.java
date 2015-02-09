@@ -93,11 +93,8 @@ public class FutbolExecutor extends CustomCommandExecutor {
     public boolean particles(CommandSender sender, boolean visible) {
         plugin.getConfig().set("particles", Boolean.valueOf(visible));
         plugin.saveConfig();
-        if (visible) {
-            // plugin.enableParticles();
-        }
-        sender.sendMessage(ChatColor.GREEN + "Particles set to "
-                + visible + " changes may not take effect until server reload/restart.");
+        plugin.setParticleVisibility(visible);
+        sender.sendMessage(ChatColor.GREEN + "Particle visibility = " + visible);
         return true;
     }
 }
