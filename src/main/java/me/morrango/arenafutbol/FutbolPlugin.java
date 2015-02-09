@@ -1,21 +1,20 @@
 package me.morrango.arenafutbol;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import mc.alk.arena.BattleArena;
 import me.morrango.arenafutbol.commands.FutbolExecutor;
 import me.morrango.arenafutbol.arenas.FutbolArena;
 import me.morrango.arenafutbol.tasks.PhysicsHandler;
+import org.bukkit.Effect;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -39,12 +38,11 @@ public class FutbolPlugin extends JavaPlugin {
     
     public static Set<Entity> balls = new HashSet<Entity>();
     public Map<UUID, Vector> vectors = new HashMap<UUID, Vector>();
-    public Field[] packet63Fields;
     private boolean particles = false;
+    private Effect particleEffect;
 
     @Override
     public void onEnable() {
-        this.packet63Fields = new Field[9];
         loadConfig();
 
         BattleArena.registerCompetition(this, "Futbol", "fb", FutbolArena.class, new FutbolExecutor(this));
@@ -70,6 +68,12 @@ public class FutbolPlugin extends JavaPlugin {
         if (getConfig().getBoolean("particles")) {
             this.particles = true;
             // enableParticles();
+        }
+        String temp = getConfig().getString("particleEffect", "POTION_BREAK");
+        try {
+            this.particleEffect = Effect.valueOf(temp);
+        } catch (IllegalArgumentException ex) {
+            this.particleEffect = Effect.POTION_BREAK;
         }
     }
 
@@ -104,7 +108,13 @@ public class FutbolPlugin extends JavaPlugin {
 
     public void showEffect(Entity entity) {
         Location location = entity.getLocation();
+        World world = entity.getWorld();
+        world.playEffect(location, this.particleEffect, 0, 128);
         // playParticleEffect(location, "fireworksSpark", 0.1F, 0.1F, 0.01F, 1, 64, 0.2F);
+    }
+    
+    public void setParticleVisibility(boolean visible) {
+        this.particles = visible;
     }
     
     /*
