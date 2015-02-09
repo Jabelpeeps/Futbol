@@ -1,0 +1,17 @@
+name: ArenaFutbol
+main: me.morrango.arenafutbol.ArenaFutbol
+version: 0.5.3.2
+website: https://github.com/BattlePluginsDev/Futbol
+author: Morrango
+authors: [Europia79]
+depend: [BattleArena,ProtocolLib]
+description: Version 3 of futbol
+commands:
+  futbol:
+    description: arena futbol
+    aliases: [fb]
+    usage: /fb <ball|balltimer|pitch|maxpitch|power>
+  worldcup:
+    description: arena futbol
+    aliases: [wc]
+    usage:  /wc
