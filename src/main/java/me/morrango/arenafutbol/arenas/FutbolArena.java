@@ -7,19 +7,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import mc.alk.arena.BattleArena;
-import mc.alk.arena.competition.match.Match;
-import mc.alk.arena.events.matches.MatchMessageEvent;
-import mc.alk.arena.objects.ArenaPlayer;
-import mc.alk.arena.objects.MatchResult;
-import mc.alk.arena.objects.MatchState;
-import mc.alk.arena.objects.arenas.Arena;
-import mc.alk.arena.objects.events.ArenaEventHandler;
-import mc.alk.arena.objects.events.EventPriority;
-import mc.alk.arena.objects.spawns.SpawnLocation;
-import mc.alk.arena.objects.teams.ArenaTeam;
-import me.morrango.arenafutbol.FutbolPlugin;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -45,6 +32,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+
+import mc.alk.arena.competition.Match;
+import mc.alk.arena.controllers.PlayerController;
+import mc.alk.arena.events.matches.MatchMessageEvent;
+import mc.alk.arena.objects.ArenaPlayer;
+import mc.alk.arena.objects.MatchResult;
+import mc.alk.arena.objects.MatchState;
+import mc.alk.arena.objects.arenas.Arena;
+import mc.alk.arena.objects.events.ArenaEventHandler;
+import mc.alk.arena.objects.events.ArenaEventPriority;
+import mc.alk.arena.objects.spawns.SpawnLocation;
+import mc.alk.arena.objects.teams.ArenaTeam;
+import me.morrango.arenafutbol.FutbolPlugin;
 
 /**
  * ArenaFutbol is free software: you can redistribute it and/or modify
@@ -84,8 +84,8 @@ public class FutbolArena extends Arena {
     public void onOpen() {
         Set<ArenaPlayer> set = getMatch().getPlayers();
         List<ArenaTeam> teamsList = getTeams();
-        String teamOne = ((ArenaTeam) teamsList.get(0)).getDisplayName();
-        String teamTwo = ((ArenaTeam) teamsList.get(1)).getDisplayName();
+        String teamOne = teamsList.get(0).getDisplayName();
+        String teamTwo = teamsList.get(1).getDisplayName();
         /*
          SScoreboard scoreboard = getMatch().getScoreboard();
          SObjective objective = scoreboard.registerNewObjective("futbolObjective", "totalKillCount", "&6Time", SAPIDisplaySlot.SIDEBAR);
@@ -229,6 +229,7 @@ public class FutbolArena extends Arena {
         int ballTimer = this.plugin.getConfig().getInt("balltimer");
         BukkitTask task = Bukkit.getScheduler().runTaskLater(this.plugin,
                 new Runnable() {
+                    @Override
                     public void run() {
                         FutbolArena.this.canKick.add(team);
                     }
@@ -237,13 +238,13 @@ public class FutbolArena extends Arena {
     }
 
     private void cancelBallTimer(ArenaTeam team) {
-        Integer timerid = (Integer) this.ballTimers.get(team);
+        Integer timerid = this.ballTimers.get(team);
         if (timerid != null) {
             Bukkit.getScheduler().cancelTask(timerid.intValue());
         }
     }
 
-    @ArenaEventHandler(priority = EventPriority.HIGHEST, needsPlayer = false)
+    @ArenaEventHandler(priority = ArenaEventPriority.HIGHEST, needsPlayer = false)
     public void onGoalScored(EntityInteractEvent event) {
         // SObjective objective = getMatch().getScoreboard().getObjective("futbolObjective");
         Entity ent = event.getEntity();
@@ -256,25 +257,25 @@ public class FutbolArena extends Arena {
             Block block = loc.getBlock().getRelative(BlockFace.DOWN);
             Material type = block.getType();
             event.setCancelled(true);
-            Match thisMatch = (Match) this.kickedBalls.get(ent);
+            Match thisMatch = this.kickedBalls.get(ent);
             List<ArenaTeam> teamsList = thisMatch.getArena().getTeams();
-            ArenaTeam teamOne = (ArenaTeam) teamsList.get(0);
-            ArenaTeam teamTwo = (ArenaTeam) teamsList.get(1);
+            ArenaTeam teamOne = teamsList.get(0);
+            ArenaTeam teamTwo = teamsList.get(1);
             ArenaTeam scoringTeam = null;
             if ((!type.equals(Material.STONE)) && (!type.equals(Material.COBBLESTONE))) {
                 this.plugin.log(ChatColor.RED + "Set blocks for goals.");
                 return;
             }
             if (type.equals(Material.STONE)) {
-                scoringTeam = (ArenaTeam) teamsList.get(0);
+                scoringTeam = teamsList.get(0);
                 // objective.setPoints(teamOne.getDisplayName(), teamOne.getNKills());
                 createFireWork(center, Color.RED, teamOne.getNKills());
             }
             if (type.equals(Material.COBBLESTONE)) {
-                scoringTeam = (ArenaTeam) teamsList.get(1);
+                scoringTeam = teamsList.get(1);
                 createFireWork(center, Color.BLUE, teamTwo.getNKills());
             }
-            ArenaPlayer scoringPlayer = getAP((Player) this.kickedBy.get(ent));
+            ArenaPlayer scoringPlayer = getAP(this.kickedBy.get(ent));
             // Add kill and send message
             scoringTeam.addKill(scoringPlayer);
             // objective.setPoints(scoringTeam.getDisplayName(), scoringTeam.getNKills());
@@ -330,7 +331,7 @@ public class FutbolArena extends Arena {
     }
 
     public ArenaPlayer getAP(Player player) {
-        return BattleArena.toArenaPlayer(player);
+        return PlayerController.toArenaPlayer(player);
     }
 
     public Location fixCenter(World world, Location origin) {
@@ -355,7 +356,7 @@ public class FutbolArena extends Arena {
     }
 
     public void removeBalls(Match match) {
-        Entity ball = (Entity) this.cleanUpList.get(match);
+        Entity ball = this.cleanUpList.get(match);
         if (ball != null) {
             FutbolPlugin.balls.remove(ball);
             this.kickedBalls.remove(ball);
@@ -372,5 +373,4 @@ public class FutbolArena extends Arena {
             }
         }
     }
-
 }

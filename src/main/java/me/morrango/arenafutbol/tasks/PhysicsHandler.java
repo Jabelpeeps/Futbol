@@ -30,5 +30,4 @@ public class PhysicsHandler implements Runnable {
     public void run() {
         this.plugin.doBallPhysics();
     }
-
 }

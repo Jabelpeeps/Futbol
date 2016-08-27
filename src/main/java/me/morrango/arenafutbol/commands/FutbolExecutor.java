@@ -1,13 +1,13 @@
 package me.morrango.arenafutbol.commands;
 
-import mc.alk.arena.executors.CustomCommandExecutor;
-import mc.alk.arena.executors.MCCommand;
-import me.morrango.arenafutbol.FutbolPlugin;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import mc.alk.arena.executors.CustomCommandExecutor;
+import mc.alk.arena.executors.MCCommand;
+import me.morrango.arenafutbol.FutbolPlugin;
 
 /**
  * ArenaFutbol is free software: you can redistribute it and/or modify
@@ -30,13 +30,13 @@ public class FutbolExecutor extends CustomCommandExecutor {
     FutbolPlugin plugin;
     
     public FutbolExecutor(FutbolPlugin reference) {
-        this.plugin = reference;
+        plugin = reference;
     }
     
     @MCCommand(cmds = {"ball"}, op = true, admin = true)
     public boolean ball(CommandSender sender) {
         Player player = (Player) sender;
-        ItemStack itemInHand = player.getItemInHand();
+        ItemStack itemInHand = player.getInventory().getItemInMainHand();
         plugin.getConfig().set("ball", itemInHand);
         plugin.saveConfig();
         sender.sendMessage(ChatColor.GREEN + "Ball set to " + itemInHand);

@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -10,61 +10,76 @@
     <url>https://github.com/BattlePluginsDev/Futbol</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <build.number>${env.BUILD_NUMBER}</build.number>
+        <craftbukkit.version>1.10.2-R0.1-SNAPSHOT</craftbukkit.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <repositories>
         <repository>
-            <id>rainbowcraft-repo</id>
-            <url>http://23.29.127.102/maven/repository/</url>
-        </repository>
-        <repository>
-            <id>bukkit-repo</id>
-            <url>http://repo.bukkit.org/content/groups/public</url>
-        </repository>
-        <repository>
-            <id>shadowvolt-repo</id>
-            <url>http://ci.shadowvolt.com/plugin/repository/everything/</url>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
     </repositories>
     <dependencies>
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>1.7.2-R0.3</version>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>${craftbukkit.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+                <exclusion>    
+                    <groupId>net.md-5</groupId>
+                    <artifactId>bungeecord-chat</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>craftbukkit</artifactId>
-            <version>1.7.9-R0.1</version>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>${craftbukkit.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+                <exclusion>    
+                    <groupId>net.md-5</groupId>
+                    <artifactId>bungeecord-chat</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        
         <dependency>
             <groupId>mc.alk</groupId>
-            <artifactId>BattleArena</artifactId>
-            <version>3.9.9.14</version>
+            <artifactId>BattleArena-lite</artifactId>
+            <version>3.9.10.15</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>mc.alk</groupId>
-            <artifactId>BattleTracker</artifactId>
-            <version>2.5.8.8</version>
-            <scope>provided</scope>
-        </dependency>
+        
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>3.6.3-SNAPSHOT</version>
+            <version>4.1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.10</version>
+            <scope>provided</scope>
         </dependency>
+
     </dependencies>
     <build>
-        <finalName>ArenaFutbol</finalName>
+        <finalName>${project.name}.${project.version}-#${build.number}</finalName>
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
@@ -73,10 +88,7 @@
             </extension>
         </extensions>
         <defaultGoal>package</defaultGoal>
-        <!-- Where our source directory is -->
         <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-        <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
-        <!-- Include all the resources we need -->
         <resources>
             <resource>
                 <targetPath>.</targetPath>
@@ -93,8 +105,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -104,37 +116,18 @@
                 <executions>
                     <execution>
                         <phase>package</phase>
-                        <!-- Shade (includes these in the final jar) -->
                         <goals>
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <relocations>
-                                <relocation>
-                                    <pattern>mc.euro.version</pattern>
-                                    <shadedPattern>me.morrango.arenafutbol.version</shadedPattern>
-                                </relocation>
-                            </relocations>
-                            <artifactSet>
-                                <includes>
-                                    <include>mc.euro:Version</include>
-                                </includes>
-                            </artifactSet>
-                            <!-- true = remove all unneeded classes -->
-                            <!-- false = keep all classes -->
-                            <minimizeJar>false</minimizeJar>
+
+                            <minimizeJar>true</minimizeJar>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <!-- Specify how we build the plugin.jar -->
             <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
-            <configuration>
-                <tasks>
-                    <copy file="target/ArenaFutbol.jar" tofile="../server/plugins/ArenaFutbol.jar"/>
-                </tasks>
-            </configuration>
             <executions>
                 <execution>
                     <phase>package</phase>
@@ -146,10 +139,4 @@
         </plugin>
         </plugins>
     </build>
-    <distributionManagement>
-      <repository>
-        <id>rainbowcraft-repo</id>
-        <url>scp://23.29.127.102/var/www/maven/repository</url>
-      </repository>
-    </distributionManagement>
 </project>

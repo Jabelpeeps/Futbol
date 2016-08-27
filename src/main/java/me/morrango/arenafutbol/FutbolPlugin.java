@@ -6,17 +6,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import mc.alk.arena.BattleArena;
-import me.morrango.arenafutbol.commands.FutbolExecutor;
-import me.morrango.arenafutbol.arenas.FutbolArena;
-import me.morrango.arenafutbol.tasks.PhysicsHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
+
+import mc.alk.arena.BattleArena;
+import mc.alk.arena.controllers.APIRegistrationController;
+import me.morrango.arenafutbol.arenas.FutbolArena;
+import me.morrango.arenafutbol.commands.FutbolExecutor;
+import me.morrango.arenafutbol.tasks.PhysicsHandler;
 
 /**
  * ArenaFutbol is free software: you can redistribute it and/or modify
@@ -45,10 +47,14 @@ public class FutbolPlugin extends JavaPlugin {
     public void onEnable() {
         loadConfig();
 
-        BattleArena.registerCompetition(this, "Futbol", "fb", FutbolArena.class, new FutbolExecutor(this));
-        BattleArena.registerCompetition(this, "WorldCup", "wc", FutbolArena.class, new FutbolExecutor(this));
+        APIRegistrationController.registerCompetition(this, "Futbol", "fb", 
+                                                        BattleArena.createArenaFactory( FutbolArena.class ), 
+                                                        new FutbolExecutor(this));
+        APIRegistrationController.registerCompetition(this, "WorldCup", "wc", 
+                                                        BattleArena.createArenaFactory( FutbolArena.class ), 
+                                                        new FutbolExecutor(this));
 
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new PhysicsHandler(this), 1L, 1L);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new PhysicsHandler(this), 1L, 1L);
     }
 
     @Override
@@ -82,7 +88,7 @@ public class FutbolPlugin extends JavaPlugin {
             UUID uuid = ball.getUniqueId();
             Vector velocity = ball.getVelocity();
             if (this.vectors.containsKey(uuid)) {
-                velocity = (Vector) this.vectors.get(uuid);
+                velocity = this.vectors.get(uuid);
             }
             Vector newVector = ball.getVelocity();
             if (newVector.getX() == 0.0D) {
